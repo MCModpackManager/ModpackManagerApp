@@ -1,0 +1,29 @@
+#browse {
+    -fx-vgap: 10;
+}
+
+.green-button  {
+    -fx-background-color: #3fa858;
+    -fx-text-fill: #fff;
+    -fx-font-weight: bold;
+}
+
+.mc-green {
+    -fx-background-color: #3fa858;
+}
+
+.bg-white {
+    -fx-background-color: #fff;
+}
+
+.large-font {
+    -fx-font-size: 16;
+}
+
+.h1 {
+    -fx-font-size: 20;
+}
+
+.small-font {
+    -fx-font-size: 12;
+}

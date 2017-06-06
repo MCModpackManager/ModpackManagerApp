@@ -1,0 +1,46 @@
+{
+  "name": "Default Repository",
+  "url": "http://modpacks.masterzach32.net/repo",
+  "format": 1,
+  "modpacks": [
+    {
+      "name": "Pixelmon",
+      "id": "pixelmon",
+      "creator": "Ultimate Doge",
+      "versions": [
+        {
+          "version": "1.5",
+          "numOfMods": 65,
+          "mcVersion": "1.7.10",
+          "forgeVersion": "10.13.4.1614"
+        }
+      ]
+    },
+    {
+      "name": "Best Modpack NA",
+      "id": "techpack",
+      "creator": "Ultimate Doge",
+      "versions": [
+        {
+          "version": "1.0",
+          "numOfMods": 81,
+          "mcVersion": "1.7.10",
+          "forgeVersion": "10.13.4.1614"
+        }
+      ]
+    },
+    {
+      "name": "ShaderPack",
+      "id": "shaders",
+      "creator": "Ultimate Doge",
+      "versions": [
+        {
+          "version": "1.8.9",
+          "numOfMods": 3,
+          "mcVersion": "1.8.9",
+          "forgeVersion": "11.15.1.1902"
+        }
+      ]
+    }
+  ]
+}
