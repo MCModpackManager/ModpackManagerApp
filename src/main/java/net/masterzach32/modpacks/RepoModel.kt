@@ -2,6 +2,7 @@ package net.masterzach32.modpacks
 
 import com.google.gson.GsonBuilder
 import com.mashape.unirest.http.Unirest
+import javafx.scene.image.Image
 
 /*
  * MinecraftModpackInstaller - Created on 6/2/2017
@@ -16,51 +17,64 @@ import com.mashape.unirest.http.Unirest
  * @version 6/2/2017
  */
 
-data class Repo(val name: String, val url: String,  val format: Int, val modpacks: Array<Modpack>) {
+data class Repo(val name: String, val url: String, val format: Int, val modpacks: Array<Modpack>) {
 
     override fun toString() = "$name ($url)"
 }
 
-data class Modpack(val name: String, val id: String, val creator: String, val versions: Array<ModpackVersion>) : Comparable<Modpack> {
+data class Modpack(val name: String, val id: String, val creator: String, val desc: String, val versions: Array<ModpackVersion>) : Comparable<Modpack> {
+
+    @Transient var repo: Repo? = null
 
     fun getLatestVersion() = versions.first()
+
+    fun getIcon() = "${repo?.url?.removeTrailingSlash()}/downloads/$id/icon.png"
 
     override fun toString() = name
 
     override fun compareTo(other: Modpack) = name.compareTo(other.name)
 }
 
-data class ModpackVersion(val version: String, val numOfMods: Int, val mcVersion: String, val forgeVersion: String) : Comparable<ModpackVersion> {
+data class ModpackVersion(val version: String, val numOfMods: Int, val gameVersion: String, val forgeVersion: String) : Comparable<ModpackVersion> {
 
-    fun getModpackUrl(repo: String, modpack: String) = "${repo.removeTrailingSlash()}/downloads/$modpack/$modpack-$version.zip"
+    fun getDownloadUrl(repo: String, modpackId: String) = "${repo.removeTrailingSlash()}/downloads/$modpackId/$modpackId-$version.zip"
 
     fun getForgeUrl(): String {
-        if (arrayOf("1.8.9", "1.8.8", "1.8.0", "1.7.10").contains(mcVersion))
+        if (arrayOf("1.8.9", "1.8.8", "1.8.0", "1.7.10").contains(gameVersion))
             return "http://files.minecraftforge.net/maven/net/minecraftforge/forge/" +
-                    "$mcVersion-$forgeVersion-$mcVersion/forge-$mcVersion-$forgeVersion-$mcVersion-installer.jar"
+                    "$gameVersion-$forgeVersion-$gameVersion/forge-$gameVersion-$forgeVersion-$gameVersion-installer.jar"
         return "http://files.minecraftforge.net/maven/net/minecraftforge/forge/" +
-                "$mcVersion-$forgeVersion/forge-$mcVersion-$forgeVersion-installer.jar"
+                "$gameVersion-$forgeVersion/forge-$gameVersion-$forgeVersion-installer.jar"
     }
 
-    override fun toString() = "$version - $mcVersion"
+    override fun toString() = "$version - $gameVersion"
 
     override fun compareTo(other: ModpackVersion): Int {
         return 0
     }
 }
 
+enum class ModpackCategory(val type: String, val desc: String) {
+    TECHNIC("Technical", "Includes mods like Buildcraft and Thermal Expansion " +
+            "that allow players to automate tasks and gameplay."),
+    MAGIC("Magic", ""),
+    ADVENTURE("Adventure", "")
+}
+
 fun loadRepoFromUrl(url: String): Repo? {
-    val response = Unirest.get("${url.removeTrailingSlash()}/modpacks.json").asString()
-
-    if (response.status != 200)
-        return null
-
-    val gson = GsonBuilder().create()
-
     try {
+        val response = Unirest.get("${url.removeTrailingSlash()}/modpacks.json").asString()
+
+        if (response.status != 200)
+            return null
+
+        val gson = GsonBuilder().create()
+
         val repo = gson.fromJson(response.body, Repo::class.java)
-        if (repo.format > 0 && repo.format <= config.getInt("format"))
+        if (repo.format > 0 && repo.format <= config.getInt("format")) {
+            repo.modpacks.forEach { it.repo = repo }
             return repo
+        }
         return null
     } catch (t: Throwable) {
         println("Error parsing json: ${t.message}")

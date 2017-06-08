@@ -16,12 +16,20 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import com.jfoenix.controls.JFXSpinner?>
-<?import javafx.scene.control.ListView?>
-<BorderPane fx:id="pane" styleClass="bg-white" stylesheets="/css/main.css" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.masterzach32.modpacks.Controller">
+<?import javafx.scene.control.ScrollPane?>
+<?import net.masterzach32.modpacks.ModpackBrowseView?>
+<BorderPane fx:id="pane"
+            stylesheets="/css/main.css"
+            styleClass="bg-white"
+            xmlns="http://javafx.com/javafx/8.0.112"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="net.masterzach32.modpacks.Controller">
     <center>
         <JFXTabPane tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
             <Tab text="Home">
-                <VBox fx:id="home" alignment="TOP_CENTER" styleClass="large-font">
+                <VBox fx:id="home"
+                      alignment="TOP_CENTER"
+                      styleClass="large-font">
                     <ImageView fitHeight="200.0" fitWidth="500.0">
                         <Image url="/images/mc-logo.png" />
                     </ImageView>
@@ -31,34 +39,98 @@
                     <Label text="Add more repositories in the settings tab, given that they follow the provided format." />
                 </VBox>
             </Tab>
-            <Tab text="Browse" onSelectionChanged="#debug">
-                <VBox fx:id="browse" alignment="CENTER">
-                    <JFXSpinner />
+            <Tab text="Browse" onSelectionChanged="#reloadModpacks">
+                <VBox spacing="2">
+                    <JFXTextField fx:id="browseSearchBar"
+                                  promptText="Search..."
+                                  onKeyReleased="#updateBrowseList"
+                                  focusColor="#3fa858"
+                                  styleClass="h1" alignment="CENTER"/>
+                    <ScrollPane>
+                        <ModpackBrowseView fx:id="browseView"
+                                           alignment="TOP_CENTER" />
+                    </ScrollPane>
                 </VBox>
             </Tab>
             <Tab text="Downloaded">
-                <Label text="Go to the browse tab to download some modpacks!" alignment="CENTER" styleClass="large-font" />
+                <Label text="Go to the browse tab to download some modpacks!"
+                       alignment="CENTER"
+                       styleClass="large-font" />
             </Tab>
             <Tab text="Settings">
-                <GridPane alignment="CENTER" hgap="40" styleClass="large-font" vgap="20">
-                    <JFXTextField fx:id="mcDirectoryField" focusColor="#3fa858" minWidth="450" labelFloat="true" promptText="Minecraft Directory" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <JFXButton text="Choose Directory" onAction="#chooseMcFolder" styleClass="green-button" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <GridPane styleClass="large-font"
+                          alignment="CENTER"
+                          hgap="40"
+                          vgap="20">
+                    <JFXTextField fx:id="mcDirectoryField"
+                                  focusColor="#3fa858"
+                                  minWidth="450"
+                                  labelFloat="true"
+                                  promptText="Minecraft Directory"
+                                  GridPane.columnIndex="0"
+                                  GridPane.rowIndex="0" />
+                    <JFXButton text="Choose Directory"
+                               onAction="#chooseMcFolder"
+                               styleClass="green-button"
+                               GridPane.columnIndex="1"
+                               GridPane.rowIndex="0" />
 
-                    <JFXTextField fx:id="cacheDirectoryField" focusColor="#3fa858" minWidth="450" labelFloat="true" promptText="Local Cache Directory" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <JFXButton text="Choose Directory" onAction="#chooseCacheFolder" styleClass="green-button" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <JFXTextField fx:id="cacheDirectoryField"
+                                  focusColor="#3fa858"
+                                  minWidth="450"
+                                  labelFloat="true"
+                                  promptText="Local Cache Directory"
+                                  GridPane.columnIndex="0"
+                                  GridPane.rowIndex="1" />
+                    <JFXButton text="Choose Directory"
+                               onAction="#chooseCacheFolder"
+                               styleClass="green-button"
+                               GridPane.columnIndex="1"
+                               GridPane.rowIndex="1" />
 
-                    <Label styleClass="h1" text="Available Repositories" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="BOTTOM" />
-                    <JFXTextField fx:id="repoInput" focusColor="#3fa858" promptText="Repo URL" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3">
-                        <JFXButton text="Add" onAction="#addRepo" styleClass="green-button" />
-                        <JFXButton text="Remove" onAction="#removeRepo" styleClass="green-button" />
+                    <Label text="Available Repositories"
+                           styleClass="h1"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="2"
+                           GridPane.columnSpan="2"
+                           GridPane.halignment="CENTER"
+                           GridPane.valignment="BOTTOM" />
+                    <JFXTextField fx:id="repoInput"
+                                  focusColor="#3fa858"
+                                  promptText="Repo URL"
+                                  GridPane.columnIndex="0"
+                                  GridPane.rowIndex="3" />
+                    <HBox alignment="CENTER"
+                          GridPane.columnIndex="1"
+                          GridPane.halignment="CENTER"
+                          GridPane.rowIndex="3">
+                        <JFXButton text="Add"
+                                   onAction="#addRepo"
+                                   styleClass="green-button" />
+                        <JFXButton text="Remove"
+                                   onAction="#removeRepo"
+                                   styleClass="green-button" />
                     </HBox>
-                    <JFXListView fx:id="repoList" maxHeight="150" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+                    <JFXListView fx:id="repoList"
+                                 maxHeight="150"
+                                 GridPane.columnIndex="0"
+                                 GridPane.columnSpan="2"
+                                 GridPane.rowIndex="4" />
 
-                    <HBox GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2" alignment="CENTER" spacing="40">
-                        <JFXButton text="About" onAction="#showAboutDialog" styleClass="green-button" />
-                        <JFXButton text="Credits" onAction="#showCreditDialog" styleClass="green-button" />
-                        <JFXButton text="Website" onAction="#showWebsite" styleClass="green-button" />
+                    <HBox GridPane.columnIndex="0"
+                          GridPane.rowIndex="5"
+                          GridPane.columnSpan="2"
+                          alignment="CENTER"
+                          spacing="40">
+                        <JFXButton text="About"
+                                   onAction="#showAboutDialog"
+                                   styleClass="green-button" />
+                        <JFXButton text="Credits"
+                                   onAction="#showCreditDialog"
+                                   styleClass="green-button" />
+                        <JFXButton text="Website"
+                                   onAction="#showWebsite"
+                                   styleClass="green-button" />
                     </HBox>
                 </GridPane>
             </Tab>

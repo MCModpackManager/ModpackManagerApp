@@ -7,11 +7,12 @@
       "name": "Pixelmon",
       "id": "pixelmon",
       "creator": "Ultimate Doge",
+      "desc": "Pixelmon with many technic and magic mods.",
       "versions": [
         {
           "version": "1.5",
           "numOfMods": 65,
-          "mcVersion": "1.7.10",
+          "gameVersion": "1.7.10",
           "forgeVersion": "10.13.4.1614"
         }
       ]
@@ -20,11 +21,12 @@
       "name": "Best Modpack NA",
       "id": "techpack",
       "creator": "Ultimate Doge",
+      "desc": "Custom technic pack.",
       "versions": [
         {
           "version": "1.0",
           "numOfMods": 81,
-          "mcVersion": "1.7.10",
+          "gameVersion": "1.7.10",
           "forgeVersion": "10.13.4.1614"
         }
       ]
@@ -33,11 +35,12 @@
       "name": "ShaderPack",
       "id": "shaders",
       "creator": "Ultimate Doge",
+      "desc": "Shaders for minecraft",
       "versions": [
         {
           "version": "1.8.9",
           "numOfMods": 3,
-          "mcVersion": "1.8.9",
+          "gameVersion": "1.8.9",
           "forgeVersion": "11.15.1.1902"
         }
       ]
