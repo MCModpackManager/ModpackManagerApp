@@ -46,9 +46,8 @@
                                   onKeyReleased="#updateBrowseList"
                                   focusColor="#3fa858"
                                   styleClass="h1" alignment="CENTER"/>
-                    <ScrollPane>
-                        <ModpackBrowseView fx:id="browseView"
-                                           alignment="TOP_CENTER" />
+                    <ScrollPane styleClass="bg-white">
+                        <ModpackBrowseView fx:id="browseView" styleClass="bg-white" alignment="TOP_CENTER" />
                     </ScrollPane>
                 </VBox>
             </Tab>

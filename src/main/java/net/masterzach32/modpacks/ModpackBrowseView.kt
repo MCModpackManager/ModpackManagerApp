@@ -1,6 +1,7 @@
 package net.masterzach32.modpacks
 
 import com.jfoenix.controls.JFXButton
+import javafx.collections.ObservableList
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.image.ImageView
@@ -24,6 +25,7 @@ import java.util.*
 class ModpackBrowseView : VBox() {
 
     private val modpacks = mutableListOf<ModpackView>()
+    private val removed = mutableListOf<ModpackView>()
 
     fun refresh(repos: List<Repo>) {
         val new = mutableListOf<Modpack>()
@@ -44,33 +46,23 @@ class ModpackBrowseView : VBox() {
         val split = query.split()
 
         if (split.isEmpty()) {
-
-        }
-
-        /*if (query.isEmpty()) {
-            browse!!.children.forEach {
-                if (!it.isVisible)
-                    it.isVisible = true
-            }
+            children.clear()
+            children.addAll(modpacks)
         } else {
-            val modpacks = ArrayList<Modpack>()
+            removed.clear()
+            split.forEach {
+                removed.addAll(modpacks.filter { view ->
+                    !(view.modpack.name.toLowerCase().contains(it.toLowerCase()) ||
+                            view.modpack.desc.toLowerCase().contains(it.toLowerCase())) &&
+                            !removed.contains(view)
+                })
 
-            for (repo in repos)
-                modpacks.addAll(repo.modpacks)
-
-            val reduced = modpacks
-                    .filter { it.name.toLowerCase().contains(query.toLowerCase()) ||
-                            it.desc.toLowerCase().contains(query.toLowerCase()) }
-
-            browse!!.children.forEach { it ->
-                val view = it as ModpackView
-                if (reduced.contains(view.modpack) && !view.isVisible) {
-                    view.isVisible = true
-                } else if (!reduced.contains(view.modpack) && view.isVisible) {
-                    view.isVisible = false
-                }
             }
-        }*/
+            children.removeAll(removed)
+
+            children.addAll(modpacks.filter { !removed.contains(it) && !children.contains(it) })
+            Collections.sort(children as ObservableList<ModpackView>)
+        }
     }
 
     private class ModpackView(val modpack: Modpack) : HBox(), Comparable<ModpackView> {
@@ -81,7 +73,7 @@ class ModpackBrowseView : VBox() {
             prefWidth = 680.0
             prefHeight = 100.0
             spacing = 10.0
-            border = Border(BorderStroke(Paint.valueOf("4d4d4d"), BorderStrokeStyle.SOLID, CornerRadii(0.0), BorderStroke.DEFAULT_WIDTHS))
+            //border = Border(BorderStroke(Paint.valueOf("4d4d4d"), BorderStrokeStyle.SOLID, CornerRadii(0.0), BorderStroke.DEFAULT_WIDTHS))
 
             val image = ImageView(modpack.getIcon())
             image.fitWidth = 150.0
@@ -116,6 +108,9 @@ class ModpackBrowseView : VBox() {
 
 
             children.add(info)
+
+            stylesheets.add("/css/main.css")
+            styleClass.add("bg-white")
         }
 
         override fun compareTo(other: ModpackView): Int {

@@ -34,5 +34,8 @@ fun String.split(): Array<String> {
         i++
     }
 
+    if (split.size == 1 && split[0].isEmpty())
+        split.clear()
+
     return split.toTypedArray()
 }
