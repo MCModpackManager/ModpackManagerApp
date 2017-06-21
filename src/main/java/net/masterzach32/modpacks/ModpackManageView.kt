@@ -96,21 +96,26 @@ class ModpackManageView : VBox() {
             playButton.prefWidth = 90.0
             playButton.styleClass.add("green-button")
             playButton.setOnAction {
-                Thread {
-                    playButton.isDisable = true
-                    removeButton.isDisable = true
-                    progressBar.isVisible = true
-                    progressDesc.isVisible = true
-                    installModpack(versionSelector.value, modpack, progressDesc.textProperty()) {
+                playButton.isDisable = true
+                removeButton.isDisable = true
+                progressBar.isVisible = true
+                progressDesc.isVisible = true
+                versionSelector.isDisable = true
+                Platform.runLater {
+                    progressBar.progress = -1.0
+                    progressDesc.textProperty().set("Waiting for other installations to complete")
+                }
+                executor.execute {
+                    playButton.isDisable = installModpack(versionSelector.value, modpack, progressDesc.textProperty()) {
                         progressBar.progress = it
                     }
                     progressBar.progress = 0.0
                     progressBar.isVisible = false
                     progressDesc.isVisible = false
-                    playButton.isDisable = false
                     removeButton.isDisable = false
+                    versionSelector.isDisable = false
                     Platform.runLater { (this.parent as ModpackManageView).refresh() }
-                }.start()
+                }
             }
             removeButton.prefWidth = 90.0
             removeButton.styleClass.add("green-button")
@@ -119,19 +124,20 @@ class ModpackManageView : VBox() {
                 (this.parent as ModpackManageView).refresh()
             }
             buttonBox.children.addAll(playButton, removeButton)
-            buttonBox.alignment = Pos.BOTTOM_RIGHT
             content.children.add(buttonBox)
             // modpack version selector
             versionSelector.styleClass.add("large-font")
             versionSelector.items.addAll(modpack.versions)
             versionSelector.selectionModel.select(0)
             versionSelector.setOnAction {
-                playButton.isDisable = versionSelector.selectionModel.selectedItem.installed
+                Platform.runLater { (this.parent as ModpackManageView).refresh() }
             }
             content.children.add(versionSelector)
             // progress bar
             progressBar.progress = 0.0
             progressBar.isVisible = false
+            progressBar.minWidthProperty().value = 500.0
+
             content.children.add(progressBar)
             progressDesc.isVisible = false
             content.children.addAll(progressDesc)
@@ -141,7 +147,7 @@ class ModpackManageView : VBox() {
         }
 
         fun update() {
-
+            playButton.isDisable = versionSelector.selectionModel.selectedItem.installed
         }
 
         override fun compareTo(other: ModpackView): Int {

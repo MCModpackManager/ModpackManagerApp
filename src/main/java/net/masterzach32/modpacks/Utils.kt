@@ -8,6 +8,9 @@ import java.io.FileOutputStream
 import java.io.BufferedInputStream
 import java.io.File
 import java.net.HttpURLConnection
+import java.net.URISyntaxException
+import java.awt.Desktop
+import java.net.URI
 
 
 /*
@@ -51,13 +54,12 @@ fun String.split(): Array<String> {
 }
 
 fun downloadModpack(modpackVersion: ModpackVersion, modpack: Modpack, temp: File, progressUpdate: (Double) -> Unit) {
-    println(temp.toString())
     if (!temp.exists())
         downloadFile(modpackVersion.getDownloadUrl(modpack.repo!!.url, modpack.id), temp.absolutePath, progressUpdate)
     modpackVersion.downloaded = true
 }
 
-fun installModpack(modpackVersion: ModpackVersion, modpack: Modpack, label: StringProperty, progressUpdate: (Double) -> Unit) {
+fun installModpack(modpackVersion: ModpackVersion, modpack: Modpack, label: StringProperty, progressUpdate: (Double) -> Unit): Boolean {
     val temp = File("${Controller.cacheDirectory}/${modpack.name}-${modpackVersion.version}.zip")
     if (!modpackVersion.downloaded) {
         Platform.runLater { label.set("Downloading modpack files") }
@@ -65,37 +67,49 @@ fun installModpack(modpackVersion: ModpackVersion, modpack: Modpack, label: Stri
     }
     if (!modpackVersion.installed) {
         Platform.runLater {
-            label.set("Extracting modpack files")
+            label.set("Cleaning minecraft files")
             progressUpdate.invoke(-1.0)
         }
         forEachModpackVersion { it.installed = false }
 
         File(Controller.mcDirectory!!.absolutePath + "/mods").deleteRecursively()
 
+        Platform.runLater {
+            label.set("Extracting modpack files")
+        }
         try {
             ZipFile(temp).extractAll(Controller.mcDirectory!!.absolutePath)
         } catch (t: Throwable) {
             t.printStackTrace()
-            return
+            return false
         }
 
-        Platform.runLater { label.set("Checking for Minecraft Forge version ${modpackVersion.forgeVersion}") }
+        Platform.runLater { label.set("Checking for correct Forge installation") }
         val forgeInstaller = Controller.cacheDirectory!!.absolutePath + "/${modpackVersion.getForgeString()}.jar"
 
         if (!isForgeInstalled(modpackVersion.forgeVersion)) {
-            Platform.runLater { label.set("Downloading Minnecraft Forge version ${modpackVersion.forgeVersion}") }
+            Platform.runLater { label.set("Downloading Forge version ${modpackVersion.forgeVersion}") }
             downloadFile(modpackVersion.getForgeUrl(), forgeInstaller, progressUpdate)
 
             try {
                 Platform.runLater {
-                    label.set("Installing Minecraft Forge version ${modpackVersion.forgeVersion}")
+                    label.set("Installing Forge")
                     progressUpdate.invoke(-1.0)
                 }
                 val pb = ProcessBuilder("java", "-jar", forgeInstaller)
                 pb.directory(File(Controller.cacheDirectory!!.absolutePath))
                 val errorCode = pb.start().waitFor()
+                if (errorCode != 0) {
+                    Platform.runLater {
+                        label.set("Could not install Forge. (error code: $errorCode)")
+                        progressUpdate.invoke(1.0)
+                    }
+                    Thread.sleep(5000)
+                    return false
+                }
             } catch (t: Throwable) {
                 t.printStackTrace()
+                return false
             }
         }
 
@@ -105,7 +119,9 @@ fun installModpack(modpackVersion: ModpackVersion, modpack: Modpack, label: Stri
         }
         Thread.sleep(5000)
         modpackVersion.installed = true
+        return true
     }
+    return false
 }
 
 fun downloadFile(urlStr: String, file: String, progressUpdate: (Double) -> Unit) {
@@ -133,4 +149,25 @@ fun downloadFile(urlStr: String, file: String, progressUpdate: (Double) -> Unit)
 fun isForgeInstalled(version: String): Boolean {
     val profiles = File(Controller.mcDirectory!!.absolutePath + "/versions").listFiles()
     return profiles.filter { it.name.contains(version) }.isNotEmpty()
+}
+
+fun openWebpage(uri: URI) {
+    val desktop = if (Desktop.isDesktopSupported()) Desktop.getDesktop() else null
+    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+        try {
+            desktop.browse(uri)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+    }
+}
+
+fun openWebpage(url: String) {
+    try {
+        openWebpage(URL(url).toURI())
+    } catch (e: URISyntaxException) {
+        e.printStackTrace()
+    }
+
 }

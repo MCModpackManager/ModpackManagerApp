@@ -7,6 +7,9 @@ import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.image.Image
 import javafx.stage.Stage
+import java.util.concurrent.Executors
+
+
 
 class Main : Application() {
 
@@ -16,9 +19,15 @@ class Main : Application() {
         stage.scene = Scene(root, 700.0, 550.0)
         stage.isResizable = false
         stage.icons.add(Image("/images/icon.png"))
+        stage.setOnCloseRequest {
+            executor.shutdownNow()
+            System.exit(0)
+        }
         stage.show()
     }
 }
+
+val executor = Executors.newFixedThreadPool(1)
 
 val config = ConfigFactory.load()
 

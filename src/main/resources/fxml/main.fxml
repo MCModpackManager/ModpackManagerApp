@@ -16,13 +16,13 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import net.masterzach32.modpacks.ModpackBrowseView?>
 <?import net.masterzach32.modpacks.ModpackManageView?>
-<BorderPane fx:id="pane"
+<?import javafx.scene.layout.StackPane?>
+<StackPane fx:id="rootPane"
             stylesheets="/css/main.css"
             styleClass="bg-white"
             xmlns="http://javafx.com/javafx/8.0.112"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="net.masterzach32.modpacks.Controller">
-    <center>
         <JFXTabPane tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
             <Tab text="Home">
                 <VBox fx:id="home"
@@ -135,5 +135,4 @@
                 </GridPane>
             </Tab>
         </JFXTabPane>
-    </center>
-</BorderPane>
+</StackPane>

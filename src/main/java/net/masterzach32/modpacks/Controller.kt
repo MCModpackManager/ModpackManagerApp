@@ -1,26 +1,18 @@
 package net.masterzach32.modpacks
 
-import com.jfoenix.controls.JFXListView
-import com.jfoenix.controls.JFXTextField
+import com.jfoenix.controls.*
 import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.event.ActionEvent
 import javafx.event.Event
-import javafx.event.EventHandler
 import javafx.fxml.FXML
-import javafx.scene.control.Label
-import javafx.scene.control.TextField
+import javafx.geometry.Insets
 import javafx.scene.input.KeyEvent
-import javafx.scene.layout.BorderPane
-import javafx.scene.layout.VBox
+import javafx.scene.layout.StackPane
 import javafx.scene.paint.*
 import javafx.stage.DirectoryChooser
 
 import java.io.File
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.Collections
-import java.util.stream.Collectors
 
 class Controller {
 
@@ -50,10 +42,10 @@ class Controller {
         cacheDirectory = getCacheDirectory()
 
         mcDirectoryField!!.text = mcDirectory?.absolutePath
-        mcDirectoryField!!.setOnAction { checkDirectoryExists(mcDirectoryField!!) }
+        mcDirectoryField!!.textProperty().addListener { _ -> checkDirectoryExists(mcDirectoryField!!) }
 
         cacheDirectoryField!!.text = cacheDirectory?.absolutePath
-        cacheDirectoryField!!.setOnAction { checkDirectoryExists(cacheDirectoryField!!) }
+        cacheDirectoryField!!.textProperty().addListener { _ -> checkDirectoryExists(cacheDirectoryField!!) }
     }
 
     val checkDirectoryExists = fun(field: JFXTextField) {
@@ -68,22 +60,14 @@ class Controller {
         }
     }
 
-    @FXML
-    private var pane: BorderPane? = null
-    @FXML
-    private var repoList: JFXListView<*>? = null
-    @FXML
-    private var mcDirectoryField: JFXTextField? = null
-    @FXML
-    private var cacheDirectoryField: JFXTextField? = null
-    @FXML
-    private var repoInput: JFXTextField? = null
-    @FXML
-    private var browseSearchBar: JFXTextField? = null
-    @FXML
-    private var browseView: ModpackBrowseView? = null
-    @FXML
-    private var manageView: ModpackManageView? = null
+    @FXML private var rootPane: StackPane? = null
+    @FXML private var repoList: JFXListView<*>? = null
+    @FXML private var mcDirectoryField: JFXTextField? = null
+    @FXML private var cacheDirectoryField: JFXTextField? = null
+    @FXML private var repoInput: JFXTextField? = null
+    @FXML private var browseSearchBar: JFXTextField? = null
+    @FXML private var browseView: ModpackBrowseView? = null
+    @FXML private var manageView: ModpackManageView? = null
 
     private var isChooserOpen = false
     private var isBrowseOpen = false
@@ -114,15 +98,17 @@ class Controller {
     }
 
     fun showAboutDialog(e: ActionEvent) {
-        println("About")
+
     }
 
     fun showCreditDialog(e: ActionEvent) {
-        println("Credits")
+        val layout = JFXDialogLayout()
+
+        JFXDialog(rootPane, layout, JFXDialog.DialogTransition.CENTER).show()
     }
 
     fun showWebsite(e: ActionEvent) {
-        println("Website")
+        openWebpage("http://masterzach32.net/")
     }
 
     fun addRepo(e: ActionEvent) {
