@@ -27,7 +27,11 @@ class ModpackBrowseView : VBox() {
     private val modpacks = mutableListOf<ModpackView>()
     private val removed = mutableListOf<ModpackView>()
 
-    fun refresh(repos: List<Repo>) {
+    fun refresh() {
+        modpacks.forEach { it.update() }
+    }
+
+    fun reload(repos: List<Repo>) {
         val new = mutableListOf<Modpack>()
 
         repos.forEach { new.addAll(it.modpacks) }
@@ -67,10 +71,10 @@ class ModpackBrowseView : VBox() {
 
     private class ModpackView(val modpack: Modpack) : HBox(), Comparable<ModpackView> {
 
-        val buttonBox = HBox()
+        val addButton = JFXButton("Add")
 
         init {
-            prefWidth = 680.0
+            prefWidth = 685.0
             prefHeight = 100.0
             spacing = 10.0
             //border = Border(BorderStroke(Paint.valueOf("4d4d4d"), BorderStrokeStyle.SOLID, CornerRadii(0.0), BorderStroke.DEFAULT_WIDTHS))
@@ -83,34 +87,40 @@ class ModpackBrowseView : VBox() {
             val info = BorderPane()
 
             val title = VBox()
+            title.spacing = -5.0
             val name = Label(modpack.name)
             name.font = Font.font(24.0)
             title.children.add(name)
-
             val author = Label("By ${modpack.creator} - ${modpack.repo?.name}")
             author.font = Font.font(10.0)
             title.children.add(author)
+
             info.top = title
 
             val desc = Label("\t${modpack.desc}")
             info.center = desc
 
-            buttonBox.alignment = Pos.CENTER_RIGHT
+            addButton.stylesheets.add("/css/main.css")
+            addButton.styleClass.addAll("green-button", "large-font")
+            addButton.alignment = Pos.CENTER_RIGHT
+            addButton.setOnAction {
+                modpack.added = true
+                addButton.isDisable = true
+            }
 
-            val button = JFXButton("Install")
-            button.stylesheets.add("/css/main.css")
-            button.styleClass.addAll("green-button", "large-font")
-            buttonBox.children.add(button)
-            info.bottom = buttonBox
+            info.bottom = addButton
 
             val version = Label("Latest Version: ${modpack.getLatestVersion().version} - Minecraft ${modpack.getLatestVersion().gameVersion}")
             info.left = version
-
 
             children.add(info)
 
             stylesheets.add("/css/main.css")
             styleClass.add("bg-white")
+        }
+
+        fun update() {
+            addButton.isDisable = modpack.added
         }
 
         override fun compareTo(other: ModpackView): Int {

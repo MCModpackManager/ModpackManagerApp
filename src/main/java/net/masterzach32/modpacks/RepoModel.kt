@@ -25,6 +25,7 @@ data class Repo(val name: String, val url: String, val format: Int, val modpacks
 data class Modpack(val name: String, val id: String, val creator: String, val desc: String, val versions: Array<ModpackVersion>) : Comparable<Modpack> {
 
     @Transient var repo: Repo? = null
+    @Transient var added: Boolean = false
 
     fun getLatestVersion() = versions.first()
 
@@ -37,14 +38,20 @@ data class Modpack(val name: String, val id: String, val creator: String, val de
 
 data class ModpackVersion(val version: String, val numOfMods: Int, val gameVersion: String, val forgeVersion: String) : Comparable<ModpackVersion> {
 
+    var installed: Boolean = false
+    var downloaded: Boolean = false
+
+    fun getForgeString(): String {
+        if (arrayOf("1.8.9", "1.8.8", "1.8.0", "1.7.10").contains(gameVersion))
+            return "$gameVersion-$forgeVersion-$gameVersion"
+        else
+            return "$gameVersion-$forgeVersion"
+    }
+
     fun getDownloadUrl(repo: String, modpackId: String) = "${repo.removeTrailingSlash()}/downloads/$modpackId/$modpackId-$version.zip"
 
     fun getForgeUrl(): String {
-        if (arrayOf("1.8.9", "1.8.8", "1.8.0", "1.7.10").contains(gameVersion))
-            return "http://files.minecraftforge.net/maven/net/minecraftforge/forge/" +
-                    "$gameVersion-$forgeVersion-$gameVersion/forge-$gameVersion-$forgeVersion-$gameVersion-installer.jar"
-        return "http://files.minecraftforge.net/maven/net/minecraftforge/forge/" +
-                "$gameVersion-$forgeVersion/forge-$gameVersion-$forgeVersion-installer.jar"
+        return "http://files.minecraftforge.net/maven/net/minecraftforge/forge/${getForgeString()}/forge-${getForgeString()}-installer.jar"
     }
 
     override fun toString() = "$version - $gameVersion"
@@ -59,6 +66,10 @@ enum class ModpackCategory(val type: String, val desc: String) {
             "that allow players to automate tasks and gameplay."),
     MAGIC("Magic", ""),
     ADVENTURE("Adventure", "")
+}
+
+fun forEachModpackVersion(func: (ModpackVersion) -> Unit) {
+    Controller.repos.forEach { it.modpacks.forEach { it.versions.forEach(func) } }
 }
 
 fun loadRepoFromUrl(url: String): Repo? {
@@ -84,8 +95,4 @@ fun loadRepoFromUrl(url: String): Repo? {
 
 fun String.removeTrailingSlash(): String {
     return if (this.isNotEmpty() && last() == '/') this.dropLast(1) else this
-}
-
-fun main(args: Array<String>) {
-    println(loadRepoFromUrl("http://modpacks.masterzach32.net/repo/"))
 }

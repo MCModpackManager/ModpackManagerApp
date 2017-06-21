@@ -38,6 +38,12 @@
       "desc": "Shaders for minecraft",
       "versions": [
         {
+          "version": "1.12",
+          "numOfMods": 4,
+          "gameVersion": "1.12",
+          "forgeVersion": "14.21.0.2334"
+        },
+        {
           "version": "1.8.9",
           "numOfMods": 3,
           "gameVersion": "1.8.9",

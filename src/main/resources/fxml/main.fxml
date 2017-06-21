@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXComboBox?>
 <?import com.jfoenix.controls.JFXListView?>
-<?import com.jfoenix.controls.JFXScrollPane?>
 <?import com.jfoenix.controls.JFXTabPane?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import javafx.scene.control.Label?>
@@ -15,9 +13,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<?import com.jfoenix.controls.JFXSpinner?>
 <?import javafx.scene.control.ScrollPane?>
 <?import net.masterzach32.modpacks.ModpackBrowseView?>
+<?import net.masterzach32.modpacks.ModpackManageView?>
 <BorderPane fx:id="pane"
             stylesheets="/css/main.css"
             styleClass="bg-white"
@@ -39,7 +37,7 @@
                     <Label text="Add more repositories in the settings tab, given that they follow the provided format." />
                 </VBox>
             </Tab>
-            <Tab text="Browse" onSelectionChanged="#reloadModpacks">
+            <Tab text="Browse" onSelectionChanged="#refreshViewI">
                 <VBox spacing="2">
                     <JFXTextField fx:id="browseSearchBar"
                                   promptText="Search..."
@@ -51,10 +49,13 @@
                     </ScrollPane>
                 </VBox>
             </Tab>
-            <Tab text="Downloaded">
+            <Tab text="Downloaded"  onSelectionChanged="#refreshViewD">
                 <Label text="Go to the browse tab to download some modpacks!"
                        alignment="CENTER"
                        styleClass="large-font" />
+                <ScrollPane styleClass="bg-white">
+                    <ModpackManageView fx:id="manageView" styleClass="bg-white" alignment="TOP_CENTER" />
+                </ScrollPane>
             </Tab>
             <Tab text="Settings">
                 <GridPane styleClass="large-font"

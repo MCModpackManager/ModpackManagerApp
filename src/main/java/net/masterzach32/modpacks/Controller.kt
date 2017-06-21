@@ -24,16 +24,18 @@ import java.util.stream.Collectors
 
 class Controller {
 
-    private val repos = mutableListOf<Repo>()
     private val downloadedModpacks = mutableListOf<Modpack>()
     private var defaultRepo: Repo? = null
-
-    private var mcDirectory = getMcDirectory()
-    private val cacheDirectory = getCacheDirectory()
 
     private val red = Paint.valueOf("FF2300")
     private val green = Paint.valueOf("3fa858")
     private val black = Paint.valueOf("4d4d4d")
+
+    companion object {
+        val repos = mutableListOf<Repo>()
+        var mcDirectory: File? = null
+        var cacheDirectory: File? = null
+    }
 
     fun initialize() {
         defaultRepo = loadRepoFromUrl("http://modpacks.masterzach32.net/repo/")
@@ -41,12 +43,16 @@ class Controller {
             defaultRepo = Repo("Default Repository", "Offline", 1, arrayOf<Modpack>())
         repos.add(defaultRepo!!)
         repoList?.items = FXCollections.observableArrayList(repos)
-        browseView!!.refresh(repos)
+        browseView!!.reload(repos)
+        manageView!!.reload(repos)
 
-        mcDirectoryField!!.text = mcDirectory.absolutePath
+        mcDirectory = getMcDirectory()
+        cacheDirectory = getCacheDirectory()
+
+        mcDirectoryField!!.text = mcDirectory?.absolutePath
         mcDirectoryField!!.setOnAction { checkDirectoryExists(mcDirectoryField!!) }
 
-        cacheDirectoryField!!.text = cacheDirectory.absolutePath
+        cacheDirectoryField!!.text = cacheDirectory?.absolutePath
         cacheDirectoryField!!.setOnAction { checkDirectoryExists(cacheDirectoryField!!) }
     }
 
@@ -76,6 +82,8 @@ class Controller {
     private var browseSearchBar: JFXTextField? = null
     @FXML
     private var browseView: ModpackBrowseView? = null
+    @FXML
+    private var manageView: ModpackManageView? = null
 
     private var isChooserOpen = false
     private var isBrowseOpen = false
@@ -84,12 +92,14 @@ class Controller {
         val file = chooseFolder()
         if (file != null)
             mcDirectoryField!!.text = file.absolutePath
+        mcDirectory = file
     }
 
     fun chooseCacheFolder(e: ActionEvent) {
         val file = chooseFolder()
         if (file != null)
             cacheDirectoryField!!.text = file.absolutePath
+        cacheDirectory = file
     }
 
     private fun chooseFolder(): File? {
@@ -119,29 +129,26 @@ class Controller {
         val repoUrl = repoInput!!.text
 
         val repo = loadRepoFromUrl(repoUrl)
-        addRepo(repo)
 
-        browseView!!.refresh(repos)
+        if (repo != null && !repos.any { it.url == repo.url })
+            repos.add(repo)
+        repoList!!.items = FXCollections.observableArrayList(repos)
+
+        browseView!!.reload(repos)
+        manageView!!.reload(repos)
         browseView!!.search(browseSearchBar!!.text)
     }
 
     fun removeRepo(e: ActionEvent) {
         val repo = repoList!!.selectionModel.selectedItem as Repo
-        removeRepo(repo)
-        browseView!!.refresh(repos)
-        browseView!!.search(browseSearchBar!!.text)
-    }
 
-    private fun addRepo(repo: Repo?) {
-        if (repo != null && !repos.any { it.url == repo.url })
-            repos.add(repo)
-        repoList!!.items = FXCollections.observableArrayList(repos)
-    }
-
-    private fun removeRepo(repo: Repo?) {
         if (repo != null && repo.url !== defaultRepo!!.url)
             repos.remove(repo)
         repoList!!.items = FXCollections.observableArrayList(repos)
+
+        browseView!!.reload(repos)
+        manageView!!.reload(repos)
+        browseView!!.search(browseSearchBar!!.text)
     }
 
     private fun getMcDirectory(): File {
@@ -156,18 +163,26 @@ class Controller {
     }
 
     private fun getCacheDirectory(): File {
-        val cache = File(System.getProperty("user.home") + "/modpackmanager")
+        val os = System.getProperty("os.name").toLowerCase()
+        val home = System.getProperty("user.home")
+        val cache: File
+        if (os.contains("windows"))
+            cache = File("$home\\AppData\\Roaming\\modpackmanager")
+        else if (os.contains("mac"))
+            cache =  File(home + "/Library/Application Support/modpackmanager")
+        else
+            cache = File("")
         if (!cache.exists())
             cache.mkdir()
         return cache
     }
 
-    fun reloadModpacks(e: Event) {
-        /*if (!isBrowseOpen) {
-            isBrowseOpen = true
-            Platform.runLater { browseView!!.refresh(repos) }
-        } else
-            isBrowseOpen = false*/
+    fun refreshViewI(e: Event) {
+        Platform.runLater { browseView!!.refresh() }
+    }
+
+    fun refreshViewD(e: Event) {
+        Platform.runLater { manageView!!.refresh() }
     }
 
     fun updateBrowseList(e: KeyEvent?) {
