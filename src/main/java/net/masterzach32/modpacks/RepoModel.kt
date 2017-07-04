@@ -20,6 +20,7 @@ import javafx.scene.image.Image
 data class Repo(val name: String, val url: String, val format: Int, val modpacks: Array<Modpack>) {
 
     override fun toString() = "$name ($url)"
+
 }
 
 data class Modpack(val name: String, val id: String, val creator: String, val desc: String, val versions: Array<ModpackVersion>) : Comparable<Modpack> {

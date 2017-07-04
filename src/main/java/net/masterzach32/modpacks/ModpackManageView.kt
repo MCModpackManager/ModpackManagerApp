@@ -4,7 +4,6 @@ import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXComboBox
 import com.jfoenix.controls.JFXProgressBar
 import javafx.application.Platform
-import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.image.ImageView
 import javafx.scene.layout.BorderPane
@@ -66,7 +65,6 @@ class ModpackManageView : VBox() {
         val progressDesc = Label()
 
         init {
-            prefWidth = 685.0
             prefHeight = 100.0
             spacing = 10.0
             //border = Border(BorderStroke(Paint.valueOf("4d4d4d"), BorderStrokeStyle.SOLID, CornerRadii(0.0), BorderStroke.DEFAULT_WIDTHS))

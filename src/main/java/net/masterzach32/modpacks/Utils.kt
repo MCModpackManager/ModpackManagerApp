@@ -3,6 +3,7 @@ package net.masterzach32.modpacks
 import javafx.application.Platform
 import javafx.beans.property.StringProperty
 import net.lingala.zip4j.core.ZipFile
+import org.slf4j.LoggerFactory
 import java.net.URL
 import java.io.FileOutputStream
 import java.io.BufferedInputStream
@@ -11,7 +12,6 @@ import java.net.HttpURLConnection
 import java.net.URISyntaxException
 import java.awt.Desktop
 import java.net.URI
-
 
 /*
  * MinecraftModpackManager - Created on 6/8/17
@@ -25,6 +25,8 @@ import java.net.URI
  * @author Zachary Kozar
  * @version 6/8/17
  */
+
+val logger = LoggerFactory.getLogger("UtilsKt")
 
 fun String.split(): Array<String> {
     val temp = split(' ')
@@ -54,8 +56,11 @@ fun String.split(): Array<String> {
 }
 
 fun downloadModpack(modpackVersion: ModpackVersion, modpack: Modpack, temp: File, progressUpdate: (Double) -> Unit) {
-    if (!temp.exists())
+    logger.info("Checking if ${modpack.name} version ${modpackVersion.version} has been downloaded.")
+    if (!temp.exists()) {
+        logger.info("Downloading modpack...")
         downloadFile(modpackVersion.getDownloadUrl(modpack.repo!!.url, modpack.id), temp.absolutePath, progressUpdate)
+    }
     modpackVersion.downloaded = true
 }
 
@@ -66,6 +71,7 @@ fun installModpack(modpackVersion: ModpackVersion, modpack: Modpack, label: Stri
         downloadModpack(modpackVersion, modpack, temp, progressUpdate)
     }
     if (!modpackVersion.installed) {
+        logger.info("Removing old files")
         Platform.runLater {
             label.set("Cleaning minecraft files")
             progressUpdate.invoke(-1.0)
@@ -73,7 +79,9 @@ fun installModpack(modpackVersion: ModpackVersion, modpack: Modpack, label: Stri
         forEachModpackVersion { it.installed = false }
 
         File(Controller.mcDirectory!!.absolutePath + "/mods").deleteRecursively()
+        File(Controller.mcDirectory!!.absolutePath + "/config").deleteRecursively()
 
+        logger.info("Extracting files...")
         Platform.runLater {
             label.set("Extracting modpack files")
         }
@@ -121,10 +129,13 @@ fun installModpack(modpackVersion: ModpackVersion, modpack: Modpack, label: Stri
         modpackVersion.installed = true
         return true
     }
+    logger.info("Modpack already installed.")
     return false
 }
 
 fun downloadFile(urlStr: String, file: String, progressUpdate: (Double) -> Unit) {
+    logger.debug("Downloading file:")
+    logger.debug("$urlStr\n$file")
     val url = URL(urlStr)
     val httpConnection = url.openConnection() as HttpURLConnection
     val bis = BufferedInputStream(httpConnection.inputStream)
